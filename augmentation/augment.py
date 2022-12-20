@@ -7,18 +7,6 @@ import albumentations as A
 import os
 import time
 
-dir = 'fish data/train/images'
-    
-# for file in os.listdir(directory):
-#     imgname = os.fsdecode(file)
-#     print(os.path.join(directory, imgname))
-
-#     # if imgname.endswith(".asm") or imgname.endswith(".py"): 
-#     #     print(os.path.join(directory, imgname))
-#     #     continue
-#     # else:
-#     #     continue
-
 
 BOX_COLOR = (255, 0, 0) # Red
 TEXT_COLOR = (255, 255, 255) # White
@@ -60,94 +48,102 @@ def visualize(image, bboxes, category_ids, category_id_to_name):
     plt.imshow(img)
     plt.show()
 
-# dir = "augmentation\images"
-# imgname = '00d0251'
-path = os.path.join(dir, imgname)
-filename, ext = os.path.splitext(path)
-# path = dir+imgname
 
-bboxes = []
-category_ids = []
-with open(filename+'.txt') as labels:
-    for line in labels:
+dir = 'fish data/val/images'
+    
+for file in os.listdir(dir):
+    imgname = os.fsdecode(file)
+    for i in range(5):
+        print('attempt: image ', imgname, 'version: ', i)
+        
+        # dir = "augmentation\images"
+        # imgname = '00d0251'
+        path = os.path.join(dir, imgname)
+        filename, ext = os.path.splitext(path)
+        # path = dir+imgname
 
-        label = int(line[0])
-        category_ids.append(label)
+        bboxes = []
+        category_ids = []
+        with open(filename.replace("images", "labels")+'.txt') as labels:
+            for line in labels:
 
-        coord_raw = line[1:]
-        coord = []
+                label = int(line[0])
+                category_ids.append(label)
 
-        for num in coord_raw.split():
-            coord.append(float(num))
+                coord_raw = line[1:]
+                coord = []
 
-        bboxes.append(coord)
+                for num in coord_raw.split():
+                    coord.append(float(num))
 
-
-# We will use the mapping from category_id to the class name
-# to visualize the class label for the bounding box on the image
-category_id_to_name = {17: 'cat', 18: 'dog'}
-
-
-jpgfile = os.path.isfile(path+'.jpg')
-pngfile = os.path.isfile(path+'.png')
-if jpgfile:
-    ext = '.jpg'
-elif pngfile:
-    ext = '.png'
-
-path = path+ext
-
-image = cv2.imread(path)
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                bboxes.append(coord)
 
 
-# We will use the mapping from category_id to the class name
-# to visualize the class label for the bounding box on the image
-category_id_to_name = {0: 'Eye', 1: 'Fish'}
-# visualize(image, bboxes, category_ids, category_id_to_name)
-
-random.seed(round(time.time() * 1000))
-image_h, image_w, _ = image.shape
-transform = A.Compose([
-        A.HorizontalFlip(p=random.randrange(0, 2)),
-        A.VerticalFlip(p=random.randrange(0, 2)),
-        A.ShiftScaleRotate(p=0.9),
-        A.RandomBrightnessContrast(p=0.9),
-        A.RGBShift(r_shift_limit=random.randrange(20, 100), 
-                    g_shift_limit=random.randrange(20, 100), 
-                    b_shift_limit=random.randrange(20, 100), 
-                    p=0.9),
-        A.RandomSizedBBoxSafeCrop(width=random.randrange(int(image_w/2)+int(image_w/3), int(image_w)), 
-                                    height=random.randrange(int(image_h/2)+int(image_h/3), int(image_h)), 
-                                    erosion_rate=random.uniform(0, 0.2),
-                                    p=0.2)
-    ],
-    bbox_params=A.BboxParams(format='yolo', label_fields=['category_ids']),
-)
-
-transformed = transform(image=image, bboxes=bboxes, category_ids=category_ids)
-visualize(
-    transformed['image'],
-    transformed['bboxes'],
-    transformed['category_ids'],
-    category_id_to_name,
-)
-
-ver=1
-
-cv2.imwrite(dir+imgname+str(ver)+ext, transformed['image'])
-print(dir+imgname+str(ver)+ext)
-
-# print(transformed['category_ids'])
-
-newlabel = ''
-for cat, line in zip(transformed['category_ids'], transformed['bboxes']):
-    singlelabel = ''
-    for num in line:
-        singlelabel+=' '+str(num)
-    print('nl')
-    newlabel+=str(cat)+ singlelabel+'\n'
+        # We will use the mapping from category_id to the class name
+        # to visualize the class label for the bounding box on the image
+        category_id_to_name = {17: 'cat', 18: 'dog'}
 
 
-f = open(dir+imgname+str(ver)+".txt", "a")
-f.write(newlabel)
+        # jpgfile = os.path.isfile(path+'.jpg')
+        # pngfile = os.path.isfile(path+'.png')
+        # if jpgfile:
+        #     ext = '.jpg'
+        # elif pngfile:
+        #     ext = '.png'
+
+        # path = path+ext
+
+        image = cv2.imread(path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+
+        # We will use the mapping from category_id to the class name
+        # to visualize the class label for the bounding box on the image
+        category_id_to_name = {0: 'Eye', 1: 'Fish'}
+        # visualize(image, bboxes, category_ids, category_id_to_name)
+
+        random.seed(round(time.time() * 1000))
+        image_h, image_w, _ = image.shape
+        transform = A.Compose([
+                A.HorizontalFlip(p=random.randrange(0, 2)),
+                A.VerticalFlip(p=random.randrange(0, 2)),
+                A.ShiftScaleRotate(p=0.9),
+                A.RandomBrightnessContrast(p=0.9),
+                A.RGBShift(r_shift_limit=random.randrange(20, 100), 
+                            g_shift_limit=random.randrange(20, 100), 
+                            b_shift_limit=random.randrange(20, 100), 
+                            p=0.9),
+                A.RandomSizedBBoxSafeCrop(width=random.randrange(int(image_w/2)+int(image_w/3), int(image_w)), 
+                                            height=random.randrange(int(image_h/2)+int(image_h/3), int(image_h)), 
+                                            erosion_rate=random.uniform(0, 0.2),
+                                            p=0.2)
+            ],
+            bbox_params=A.BboxParams(format='yolo', label_fields=['category_ids']),
+        )
+
+        transformed = transform(image=image, bboxes=bboxes, category_ids=category_ids)
+        # visualize(
+        #     transformed['image'],
+        #     transformed['bboxes'],
+        #     transformed['category_ids'],
+        #     category_id_to_name,
+        # )
+
+        ver=i
+
+        cv2.imwrite('augmented_data/'+filename+str(ver)+ext, transformed['image'])
+        # print('augmented_data'+dir+imgname+str(ver)+ext)
+
+        # print(transformed['category_ids'])
+
+        newlabel = ''
+        for cat, line in zip(transformed['category_ids'], transformed['bboxes']):
+            singlelabel = ''
+            for num in line:
+                singlelabel+=' '+str(num)
+            # print('nl')
+            newlabel+=str(cat)+ singlelabel+'\n'
+
+
+        f = open('augmented_data/'+filename.replace("images", "labels")+str(ver)+".txt", "a")
+        f.write(newlabel)
