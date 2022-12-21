@@ -49,11 +49,11 @@ def visualize(image, bboxes, category_ids, category_id_to_name):
     plt.show()
 
 
-dir = 'fish data/val/images'
+dir = 'fish data/train/images'
     
 for file in os.listdir(dir):
     imgname = os.fsdecode(file)
-    for i in range(5):
+    for i in range(20):
         print('attempt: image ', imgname, 'version: ', i)
         
         # dir = "augmentation\images"
@@ -81,7 +81,7 @@ for file in os.listdir(dir):
 
         # We will use the mapping from category_id to the class name
         # to visualize the class label for the bounding box on the image
-        category_id_to_name = {17: 'cat', 18: 'dog'}
+        # category_id_to_name = {17: 'cat', 18: 'dog'}
 
 
         # jpgfile = os.path.isfile(path+'.jpg')
@@ -107,16 +107,37 @@ for file in os.listdir(dir):
         transform = A.Compose([
                 A.HorizontalFlip(p=random.randrange(0, 2)),
                 A.VerticalFlip(p=random.randrange(0, 2)),
-                A.ShiftScaleRotate(p=0.9),
+                # A.Blur(p=random.randrange(0, 2)),
+                # A.ShiftScaleRotate(p=0.9),
                 A.RandomBrightnessContrast(p=0.9),
                 A.RGBShift(r_shift_limit=random.randrange(20, 100), 
                             g_shift_limit=random.randrange(20, 100), 
                             b_shift_limit=random.randrange(20, 100), 
                             p=0.9),
-                A.RandomSizedBBoxSafeCrop(width=random.randrange(int(image_w/2)+int(image_w/3), int(image_w)), 
-                                            height=random.randrange(int(image_h/2)+int(image_h/3), int(image_h)), 
-                                            erosion_rate=random.uniform(0, 0.2),
-                                            p=0.2)
+                A.RandomSizedBBoxSafeCrop(width=random.randrange(int(image_w/2), int(image_w)), 
+                                            height=random.randrange(int(image_h/2), int(image_h)), 
+                                            erosion_rate=random.uniform(0, 0.3),
+                                            p=0.3),
+                A.OneOf([
+                    A.IAAAdditiveGaussianNoise(),
+                    A.GaussNoise(),
+                ], p=0.5),
+                A.OneOf([
+                    A.MotionBlur(p=0.3),
+                    A.MedianBlur(blur_limit=3, p=0.2),
+                    A.Blur(blur_limit=3, p=0.2),
+                ], p=0.5),
+                A.OneOf([
+                    # A.OpticalDistortion(p=0.3),
+                    A.GridDistortion(p=0.3),
+                    A.IAAPiecewiseAffine(p=0.3),
+                ], p=0.5),
+                A.OneOf([
+                    A.CLAHE(clip_limit=2),
+                    A.IAASharpen(),
+                    A.IAAEmboss(),
+                    A.RandomBrightnessContrast(),
+                ], p=0.5),
             ],
             bbox_params=A.BboxParams(format='yolo', label_fields=['category_ids']),
         )
