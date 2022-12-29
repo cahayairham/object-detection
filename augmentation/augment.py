@@ -49,11 +49,11 @@ def visualize(image, bboxes, category_ids, category_id_to_name):
     plt.show()
 
 
-dir = 'fish data/train/images'
+dir = 'fish data/val/images'
     
 for file in os.listdir(dir):
     imgname = os.fsdecode(file)
-    for i in range(20):
+    for i in range(25):
         print('attempt: image ', imgname, 'version: ', i)
         
         # dir = "augmentation\images"

@@ -25,7 +25,7 @@ args = vars(parser.parse_args())
 
 
 
-dir = 'augmented_data/fish data/train/images'
+dir = 'augmented_data/fish data/val/images'
 # dir = 'fish data/val/images'
 # file = '1110.png'
     
